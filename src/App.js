@@ -139,24 +139,25 @@ const App = () => {
 
       <div className="btn-container">
         <video id="videoElement" width="640" height="480" autoPlay></video>
+        <canvas id="canvas" width="640" height="480"></canvas>
+        <img src="" alt="" id="img"></img>
         <button
           onClick={async () => {
+            const videoElement = document.getElementById('videoElement');
+            const imageElement = document.getElementById('img');
+            const canvasElement = document.getElementById('canvas');
             try {
-              const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-              const videoElement = document.getElementById('videoElement');
-              if (videoElement) {
-                videoElement.srcObject = stream;
-                // You might want to store a reference to the MediaStreamTracks instead of the whole stream
-                frame = stream.getVideoTracks()[0];
-                console.log('Camera started');
+              // 获取用户媒体,包含视频和音频
+              navigator.mediaDevices.getUserMedia({ video: true, audio: true })
+                .then(stream => {
+                  videoElement.srcObject = stream; // 将捕获的视频流传递给video  放弃window.URL.createObjectURL(stream)的使用
+                  videoElement.play(); //  播放视频
+                });
 
-                const ic = new ImageCapture(frame);
-                frame = ic.takePhoto();
-                console.log(frame);
+              let context = canvasElement.getContext('2d');
+              context.drawImage(videoElement, 0, 0, 640, 480);// 将视频画面捕捉后绘制到canvas里面
+              imageElement.src = canvasElement.toDataURL('image/png');// 将canvas的数据传送到img里
 
-              } else {
-                console.error('Video element not found');
-              }
             } catch (error) {
               console.log('Error accessing camera:', error);
             }
