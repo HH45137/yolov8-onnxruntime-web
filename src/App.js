@@ -1,10 +1,12 @@
 import React, { useState, useRef } from "react";
-import cv from "@techstark/opencv-js";
+import cv, { log } from "@techstark/opencv-js";
 import { Tensor, InferenceSession } from "onnxruntime-web";
 import Loader from "./components/loader";
 import { detectImage } from "./utils/detect";
 import { download } from "./utils/download";
 import "./style/App.css";
+
+var frame = null;
 
 const App = () => {
   const [session, setSession] = useState(null);
@@ -15,11 +17,11 @@ const App = () => {
   const canvasRef = useRef(null);
 
   // Configs
-  const modelName = "yolov8n.onnx";
+  const modelName = "smoker-detetion.onnx";
   const modelInputShape = [1, 3, 640, 640];
   const topk = 100;
-  const iouThreshold = 0.45;
-  const scoreThreshold = 0.25;
+  const iouThreshold = 0.2;
+  const scoreThreshold = 0.3;
 
   // wait until opencv.js initialized
   cv["onRuntimeInitialized"] = async () => {
@@ -52,12 +54,13 @@ const App = () => {
 
   return (
     <div className="App">
+
       {loading && (
         <Loader>
           {loading.progress ? `${loading.text} - ${loading.progress}%` : loading.text}
         </Loader>
       )}
-      <div className="header">
+      <div className="btn-container">
         <h1>YOLOv8 Object Detection App</h1>
         <p>
           YOLOv8 object detection application live on browser powered by{" "}
@@ -133,6 +136,36 @@ const App = () => {
           </button>
         )}
       </div>
+
+      <div className="btn-container">
+        <video id="videoElement" width="640" height="480" autoPlay></video>
+        <button
+          onClick={async () => {
+            try {
+              const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+              const videoElement = document.getElementById('videoElement');
+              if (videoElement) {
+                videoElement.srcObject = stream;
+                // You might want to store a reference to the MediaStreamTracks instead of the whole stream
+                frame = stream.getVideoTracks()[0];
+                console.log('Camera started');
+
+                const ic = new ImageCapture(frame);
+                frame = ic.takePhoto();
+                console.log(frame);
+
+              } else {
+                console.error('Video element not found');
+              }
+            } catch (error) {
+              console.log('Error accessing camera:', error);
+            }
+          }}
+        >
+          Start camera
+        </button>
+      </div>
+
     </div>
   );
 };
