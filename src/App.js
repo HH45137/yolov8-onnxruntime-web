@@ -100,16 +100,16 @@ const App = () => {
       </div>
 
       <input
-        type="file"
+        type="button"
         ref={inputImage}
         accept="image/*"
         style={{ display: "none" }}
-        onChange={(e) => {
+        onClick={(e) => {
           // handle next image to detect
-          if (image) {
-            URL.revokeObjectURL(image);
-            setImage(null);
-          }
+          // if (image) {
+          //   URL.revokeObjectURL(image);
+          //   setImage(null);
+          // }
 
           const videoElement = document.getElementById('videoElement');
           const canvasElement = document.getElementById('canvas');
@@ -122,9 +122,10 @@ const App = () => {
           setImage(url);
         }}
       />
+
       <div className="btn-container">
         <button
-          onClick={async () => {
+          onClick={() => {
 
             const videoElement = document.getElementById('videoElement');
 
