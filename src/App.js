@@ -12,9 +12,9 @@ const App = () => {
   const [session, setSession] = useState(null);
   const [loading, setLoading] = useState({ text: "Loading OpenCV.js", progress: null });
   const [image, setImage] = useState(null);
-  const inputImage = useRef(null);
-  const imageRef = useRef(null);
-  const canvasRef = useRef(null);
+  const inputImage = useRef(null);  // 输入的图像的引用
+  const imageRef = useRef(null);    // 图像的引用
+  const canvasRef = useRef(null);   // 画布引用
 
   // Configs
   const modelName = "smoker-detetion.onnx";
@@ -54,6 +54,8 @@ const App = () => {
 
   return (
     <div className="App">
+
+      <video id="videoElement" width="640" height="480" autoPlay></video>
 
       {loading && (
         <Loader>
@@ -109,14 +111,32 @@ const App = () => {
             setImage(null);
           }
 
-          const url = URL.createObjectURL(e.target.files[0]); // create image url
+          const videoElement = document.getElementById('videoElement');
+          const canvasElement = document.getElementById('canvas');
+          const context = canvasElement.getContext('2d');
+          context.drawImage(videoElement, 0, 0, 640, 480);// 将视频画面捕捉后绘制到canvas里面
+          const url = canvasElement.toDataURL('image/png');// 将canvas的数据传送到img里
+
+          // url = URL.createObjectURL(e.target.files[0]); // create image url
           imageRef.current.src = url; // set image source
           setImage(url);
         }}
       />
       <div className="btn-container">
         <button
-          onClick={() => {
+          onClick={async () => {
+
+            const videoElement = document.getElementById('videoElement');
+
+            if (videoElement.srcObject !== '') {
+              // 获取用户媒体,包含视频和音频
+              navigator.mediaDevices.getUserMedia({ video: true })
+                .then(stream => {
+                  videoElement.srcObject = stream; // 将捕获的视频流传递给video  放弃window.URL.createObjectURL(stream)的使用
+                  videoElement.play(); //  播放视频
+                });
+            }
+
             inputImage.current.click();
           }}
         >
@@ -137,35 +157,32 @@ const App = () => {
         )}
       </div>
 
-      <div className="btn-container">
-        <video id="videoElement" width="640" height="480" autoPlay></video>
-        <canvas id="canvas" width="640" height="480"></canvas>
-        <img src="" alt="" id="img"></img>
+      {/* <div className="btn-container">
         <button
           onClick={async () => {
-            const videoElement = document.getElementById('videoElement');
-            const imageElement = document.getElementById('img');
-            const canvasElement = document.getElementById('canvas');
-            try {
-              // 获取用户媒体,包含视频和音频
-              navigator.mediaDevices.getUserMedia({ video: true, audio: true })
-                .then(stream => {
-                  videoElement.srcObject = stream; // 将捕获的视频流传递给video  放弃window.URL.createObjectURL(stream)的使用
-                  videoElement.play(); //  播放视频
-                });
+            // const videoElement = document.getElementById('videoElement');
+            // //const canvasElement = document.getElementById('canvas');
+            // try {
+            //   // 获取用户媒体,包含视频和音频
+            //   navigator.mediaDevices.getUserMedia({ video: true, audio: true })
+            //     .then(stream => {
+            //       videoElement.srcObject = stream; // 将捕获的视频流传递给video  放弃window.URL.createObjectURL(stream)的使用
+            //       videoElement.play(); //  播放视频
+            //     });
 
-              let context = canvasElement.getContext('2d');
-              context.drawImage(videoElement, 0, 0, 640, 480);// 将视频画面捕捉后绘制到canvas里面
-              imageElement.src = canvasElement.toDataURL('image/png');// 将canvas的数据传送到img里
+            //   //let context = canvasElement.getContext('2d');
+            //   //context.drawImage(videoElement, 0, 0, 640, 480);// 将视频画面捕捉后绘制到canvas里面
+            //   // imageElement.src = canvasElement.toDataURL('image/png');// 将canvas的数据传送到img里
+            //   // imageRef.current.src = canvasElement.toDataURL('image/png');
 
-            } catch (error) {
-              console.log('Error accessing camera:', error);
-            }
+            // } catch (error) {
+            //   console.log('Error accessing camera:', error);
+            // }
           }}
         >
           Start camera
         </button>
-      </div>
+      </div> */}
 
     </div>
   );
