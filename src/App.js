@@ -63,13 +63,13 @@ const App = () => {
         </Loader>
       )}
       <div className="btn-container">
-        <h1>YOLOv8 Object Detection App</h1>
+        <h1>AI吸烟者检测系统</h1>
         <p>
-          YOLOv8 object detection application live on browser powered by{" "}
+          该项目使用{" "}
           <code>onnxruntime-web</code>
         </p>
         <p>
-          Serving : <code className="code">{modelName}</code>
+          使用模型 : <code className="code">{modelName}</code>
         </p>
       </div>
 
@@ -141,7 +141,7 @@ const App = () => {
             inputImage.current.click();
           }}
         >
-          Open local image
+          刷新
         </button>
         {image && (
           /* show close btn when there is image */
@@ -153,7 +153,7 @@ const App = () => {
               setImage(null);
             }}
           >
-            Close image
+            关闭检测结果
           </button>
         )}
       </div>
